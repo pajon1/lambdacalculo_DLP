@@ -1,0 +1,146 @@
+
+RECURSIVIDAD:
+
+sum = letrec sum : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) in sum;
+
+prod = letrec sum : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) in letrec prod : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero m then 0 else sum n (prod n (pred m)) in prod;
+
+fib = letrec fib : Nat -> Nat = lambda n : Nat. if iszero n then 0 else if iszero (pred n) then 1 else sum (fib (pred n)) (fib (pred (pred n))) in fib;
+
+fact = letrec fact : Nat -> Nat = lambda n : Nat. if iszero n then 1 else prod n (fact (pred n)) in fact;
+VARIANTES:
+
+
+
+Int = <pos: Nat, zero: Bool, neg: Nat>;
+Ordering = <less: Bool, equal: Bool, greater: Bool>;
+
+addNat = letrec addNat: Nat -> Nat -> Nat = L n: Nat. L m: Nat.
+    if iszero n then m else succ (addNat (pred n) m)
+in addNat;;
+
+subNat = letrec subNat: Nat -> Nat -> Nat = L n: Nat. L m: Nat.
+    if iszero n then 0 else
+    if iszero m then n else subNat (pred n) (pred m)
+in subNat;;
+
+cmpNat = letrec cmpNat: Nat -> Nat -> Ordering = L n: Nat. L m: Nat.
+    if iszero n then
+        if iszero m then (<equal = true> as Ordering)
+        else (<less = true> as Ordering)
+    else
+        if iszero m then (<greater = true> as Ordering)
+        else cmpNat (pred n) (pred m)
+in cmpNat;;
+
+add = L x: Int. L y: Int.
+    (case x of
+        <zero = z> => y
+      | <pos = p1> =>
+          (case y of
+              <zero = z> => x
+            | <pos = p2> => (<pos = addNat p1 p2> as Int)
+            | <neg = n2> =>
+                let ord = cmpNat p1 n2 in
+                (case ord of
+                    <less = l> => (<neg = subNat n2 p1> as Int)
+                  | <equal = e> => (<zero = true> as Int)
+                  | <greater = g> => (<pos = subNat p1 n2> as Int)
+                )
+          )
+      | <neg = n1> =>
+          (case y of
+              <zero = z> => x
+            | <neg = n2> => (<neg = addNat n1 n2> as Int)
+            | <pos = p2> =>
+                let ord = cmpNat n1 p2 in
+                (case ord of
+                    <less = l> => (<pos = subNat p2 n1> as Int)
+                  | <equal = e> => (<zero = true> as Int)
+                  | <greater = g> => (<neg = subNat n1 p2> as Int)
+                )
+          )
+    );;
+
+-- Definir números naturales
+zero = 0;;
+one = succ zero;;
+two = succ one;;
+three = succ two;;
+
+-- Crear enteros
+intPosTwo = (<pos = two> as Int);;
+intNegOne = (<neg = one> as Int);;
+intZero = (<zero = true> as Int);;
+
+-- Realizar sumas
+result1 = add intPosTwo intNegOne;;  -- Debería ser (<pos = one> as Int)
+result2 = add intNegOne intNegOne;;  -- Debería ser (<neg = two> as Int)
+result3 = add intPosTwo intZero;;    -- Debería ser (<pos = two> as Int)
+
+LISTAS:
+
+lista de ejemplo:
+
+l = cons[Nat] 8 (cons[Nat] 5 (cons[Nat] 7 nil[Nat]));;
+
+isnil[Nat] l;;
+
+head[Nat] l;;
+
+tail[Nat] l;;
+
+length = 
+  letrec length : List[Nat] -> Nat =
+    lambda l : List[Nat]. if isnil[Nat] l then 0 else succ (length (tail[Nat] l))
+  in
+    length
+;;
+
+append = 
+  letrec append : List[Nat] -> List[Nat] -> List[Nat] =
+    lambda l1 : List[Nat]. lambda l2 : List[Nat]. 
+      if isnil[Nat] l1 then l2 
+      else cons[Nat] (head[Nat] l1) (append (tail[Nat] l1) l2)
+  in
+    append
+;;
+
+map = 
+  letrec map : (Nat -> Nat) -> List[Nat] -> List[Nat] =
+    lambda f : (Nat -> Nat). lambda l : List[Nat]. 
+      if isnil[Nat] l then nil[Nat] 
+      else cons[Nat] (f (head[Nat] l)) (map f (tail[Nat] l))
+  in
+    map
+;;
+
+SUBTIPADO:
+
+let
+   getx = (lambda r : {x:Nat}. r.x)
+in
+   getx {x:0, y:true};
+   
+Repetir add de variantes usando:
+Int2 = <pos: Nat, zero: Bool, neg: Nat,aux:Bool>;
+
+-- Definir números naturales
+zero = 0;;
+one = succ zero;;
+two = succ one;;
+three = succ two;;
+
+-- Crear enteros
+intPosTwo = (<pos = two> as Int2);;
+intNegOne = (<neg = one> as Int2);;
+intZero = (<zero = true> as Int2);;
+
+-- Realizar sumas
+result1 = add intPosTwo intNegOne;;  
+result2 = add intNegOne intNegOne;; 
+result3 = add intPosTwo intZero;;
+
+
+
+
